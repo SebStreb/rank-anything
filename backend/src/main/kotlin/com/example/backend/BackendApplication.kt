@@ -1,11 +1,11 @@
-package com.example.rank_anything_backend
+package com.example.backend
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class RankAnythingBackendApplication
+class BackendApplication
 
 fun main(args: Array<String>) {
-    runApplication<RankAnythingBackendApplication>(*args)
+    runApplication<BackendApplication>(*args)
 }
