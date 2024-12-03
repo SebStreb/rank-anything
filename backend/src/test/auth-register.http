@@ -1,0 +1,59 @@
+@url = http://localhost:3000
+
+###### test
+
+### Create John Doe, expected 201
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userId", response.body.id); %}
+
+### Can't create John Doe if already exists, expected 409
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Autre-Bon-Mot-De-Passe-420"
+}
+
+### Wrong email format, expected 400
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+### Wrong password format, expected 400
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "420"
+}
+
+
+###### cleanup
+
+### Login John Doe to be able to delete him
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userToken", response.body); %}
+
+### Delete John Doe
+POST {{url}}/users/{{userId}}
+Authorization: {{userToken}}

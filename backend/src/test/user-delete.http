@@ -1,0 +1,87 @@
+@url = http://localhost:3000
+
+###### init
+
+### Register John Doe
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userId", response.body.id); %}
+
+### Login John Doe
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userToken", response.body); %}
+
+### Register Jane Doe
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "jane.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("janeId", response.body.id); %}
+
+### Login Jane Doe
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("janeToken", response.body); %}
+
+### Login admin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin",
+  "password": "admin"
+}
+
+> {% client.global.set("adminToken", response.body); %}
+
+
+###### test
+
+### Can't delete John Doe without being logged in, expected 403
+DELETE {{url}}/users/{{userId}}
+
+### Can't delete John Doe if not himself, expected 403
+DELETE {{url}}/users/{{userId}}
+Authorization: {{janeToken}}
+
+### Can't delete not existing user, expected 404
+DELETE {{url}}/users/0
+Authorization: {{userToken}}
+
+### Can't delete gibberish, expected 400
+DELETE {{url}}/users/abc
+Authorization: {{userToken}}
+
+### Delete John Doe as himself, expected 204
+DELETE {{url}}/users/{{userId}}
+Authorization: {{userToken}}
+
+### Delete Jane Doe as admin, expected 204
+DELETE {{url}}/users/{{janeId}}
+Authorization: {{adminToken}}
+
+
+###### cleanup

@@ -1,0 +1,61 @@
+@url = http://localhost:3000
+
+###### init
+
+### Register John Doe
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userId", response.body.id); %}
+
+### Login John Doe
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userToken", response.body); %}
+
+### Login admin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin",
+  "password": "admin"
+}
+
+> {% client.global.set("adminToken", response.body); %}
+
+
+###### test
+
+### Can't set admin if not connected, expected 403
+PATCH {{url}}/users/{{userId}}/admin
+
+### Can't set admin if not admin, expected 403
+PATCH {{url}}/users/{{userId}}/admin
+Authorization: {{userToken}}
+
+### Set admin, expected 204
+PATCH {{url}}/users/{{userId}}/admin
+Authorization: {{adminToken}}
+
+### Check if admin, expected 200
+GET {{url}}/users/{{userId}}
+Authorization: {{userToken}}
+
+
+###### cleanup
+
+### Delete John Doe
+DELETE {{url}}/users/{{userId}}
+Authorization: {{userToken}}

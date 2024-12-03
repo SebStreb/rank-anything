@@ -1,0 +1,53 @@
+@url = http://localhost:3000
+
+###### init
+
+### Register John Doe
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userId", response.body.id); %}
+
+
+###### test
+
+### Login John Doe, expected 200
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userToken", response.body); %}
+
+### Wrong email, expected 401
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+### Wrong password, expected 401
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-69"
+}
+
+
+###### cleanup
+
+### Delete John Doe
+DELETE {{url}}/users/{{userId}}
+Authorization: {{userToken}}

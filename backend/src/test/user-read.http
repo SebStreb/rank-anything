@@ -1,0 +1,82 @@
+@url = http://localhost:3000
+
+###### init
+
+### Register John Doe
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userId", response.body.id); %}
+
+### Register Jane Doe
+POST {{url}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "jane.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("janeId", response.body.id); %}
+
+### Login Jane Doe
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane.doe@example.org",
+  "password": "Un-Bon-Mot-De-Passe-420"
+}
+
+> {% client.global.set("userToken", response.body); %}
+
+### Login admin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin",
+  "password": "admin"
+}
+
+> {% client.global.set("adminToken", response.body); %}
+
+###### test
+
+### Can't read all users without being logged in, expected 403
+GET {{url}}/users
+
+### Can't read John Doe without being logged in, expected 403
+GET {{url}}/users/{{userId}}
+
+### Read all users, expected 200
+GET {{url}}/users
+Authorization: {{userToken}}
+
+### Read John Doe, expected 200
+GET {{url}}/users/{{userId}}
+Authorization: {{userToken}}
+
+### Can't read not existing user, expected 404
+GET {{url}}/users/0
+Authorization: {{userToken}}
+
+### Can't read gibberish, expected 400
+GET {{url}}/users/abc
+Authorization: {{userToken}}
+
+
+###### cleanup
+
+### Delete John Doe to clean up
+DELETE {{url}}/users/{{userId}}
+Authorization: {{adminToken}}
+
+### Delete Jane Doe to clean up
+DELETE {{url}}/users/{{janeId}}
+Authorization: {{adminToken}}
